@@ -34,6 +34,7 @@ Can also be used with Cobalt Strike's execute-assembly.
 
 ## TODO (feel free to PR, i'm a lazy ass)
 - Use suboptions instead of everything at once
+- Improve rights checking (more detailed results)
 - Try Privesc (impersonation stuff after checking rights)
 - check for xp_cmdshell (present/activated?) and run supplied command
 - xp_dirtree/xp_fileexist for NetNTLM grabbing/relaying
