@@ -34,5 +34,5 @@ Can also be used with Cobalt Strike's execute-assembly.
 
 ## TODO 
 - Try Privesc (impersonation stuff after checking rights)
-- run xp_cmdshell command
+- check for xp_cmdshell (present/activated?) and run supplied command command
 - xp_dirtree/File exist for NetNTLM grabbing/relaying
