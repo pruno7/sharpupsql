@@ -11,8 +11,17 @@ namespace SharpUpSQL
     {
         public static (string, string) searchSPNs(string dc, string user, string password)
         {
+            DirectoryEntry Ldap;
             Console.WriteLine("[*] Searching for SPNs");
-            DirectoryEntry Ldap = new DirectoryEntry("LDAP://" + dc, user, password);
+            if (Program.opts.currentuser)
+            {
+                Console.WriteLine("[*] Checking with current user");
+                Ldap = new DirectoryEntry("LDAP://" + dc);
+            }
+            else
+            {
+                Ldap = new DirectoryEntry("LDAP://" + dc, user, password);
+            }
             DirectorySearcher searcher = new DirectorySearcher(Ldap);
             searcher.Filter = "(servicePrincipalName=*SQL*)";
             foreach (SearchResult result in searcher.FindAll())

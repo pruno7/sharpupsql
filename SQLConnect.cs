@@ -9,16 +9,33 @@ namespace SharpUpSQL
 {
     class SQLConnect
     {
-        public static SqlConnection sqlConnect(string sqlInstanceParsedName, string sqlInstanceParsedPort, string sqlUsername, string sqlPassword, bool checkRights)
+        public static SqlConnection sqlConnect(string sqlInstanceParsedName, string sqlInstanceParsedPort, string sqlUsername, string sqlPassword)
         {
-            Console.WriteLine("[*] Testing connection with " + sqlUsername);
-            string connString = @"Data Source=" + sqlInstanceParsedName + "," + sqlInstanceParsedPort + ";User ID=" + sqlUsername + ";Password=" + sqlPassword;
-            SqlConnection cnn = new SqlConnection(connString);
-            cnn.Open();
-            Console.WriteLine("[+] Connection succeeded with : " + sqlUsername + ":" + sqlPassword);
-            if (checkRights)
+            string connString;
+            SqlConnection cnn;
+            if (Program.opts.currentuser)
             {
-                CheckRights.checkRights(cnn);
+                Console.WriteLine("[*] Testing SQL connection with current user");
+                connString = @"Data Source=" + sqlInstanceParsedName + "," + sqlInstanceParsedPort + ";Integrated Security=True";
+                cnn = new SqlConnection(connString);
+                cnn.Open();
+                Console.WriteLine("[+] Connection succeeded with current user");
+            }
+            else if (string.IsNullOrEmpty(Program.opts.LdapUserName))
+            {
+                Console.WriteLine("[*] Testing SQL connection with " + sqlUsername);
+                connString = @"Data Source=" + sqlInstanceParsedName + "," + sqlInstanceParsedPort + ";User ID=" + sqlUsername + ";Password=" + sqlPassword;
+                cnn = new SqlConnection(connString);
+                cnn.Open();
+                Console.WriteLine("[+] Connection succeeded with : " + sqlUsername + ":" + sqlPassword);
+            }
+            else
+            {
+                Console.WriteLine("[*] Testing SQL connection with " + sqlUsername);
+                connString = @"Data Source=" + sqlInstanceParsedName + "," + sqlInstanceParsedPort + ";User ID=" + sqlUsername + ";Password=" + sqlPassword;
+                cnn = new SqlConnection(connString);
+                cnn.Open();
+                Console.WriteLine("[+] Connection succeeded with : " + sqlUsername + ":" + sqlPassword);
             }
             return cnn;
         }
