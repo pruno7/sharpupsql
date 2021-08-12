@@ -32,7 +32,8 @@ Can also be used with Cobalt Strike's execute-assembly.
 --help - Do i really to explain this ?
 ```
 
-## TODO 
+## TODO (feel free to PR, i'm a lazy ass)
 - Try Privesc (impersonation stuff after checking rights)
 - check for xp_cmdshell (present/activated?) and run supplied command command
 - xp_dirtree/File exist for NetNTLM grabbing/relaying
+- Prepare a BOF.NET usable version
