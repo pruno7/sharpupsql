@@ -31,3 +31,8 @@ Can also be used with Cobalt Strike's execute-assembly.
 
 --help - Do i really to explain this ?
 ```
+
+## TODO 
+- Try Privesc (impersonation stuff after checking rights)
+- run xp_cmdshell command
+- xp_dirtree/File exist for NetNTLM grabbing/relaying
