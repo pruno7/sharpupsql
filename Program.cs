@@ -31,19 +31,19 @@ namespace SharpUpSQL
         [Option("discoverspn", Required = false, HelpText = "Search for mssql instances in LDAP (SPN Discovery)")]
         public bool discoverspn { get; set; }
 
-        [Option("sqlinstance", Required = false, HelpText = "IP,PORT")]
+        [Option("sqlinstance", Required = false, HelpText = "Sql instance to connect to, format : IP,PORT")]
         public string sqlInstance { get; set; }
 
         [Option("checkrights", Required = false, HelpText = "Check rights of the user after connecting to the instance")]
         public bool checkRights { get; set; }
 
-        [Option("currentuser", Required = false, HelpText = "Use current user ?")]
+        [Option("currentuser", Required = false, HelpText = "Use current domain user for everything")]
         public bool currentuser { get; set; }
 
-        [Option("sqluser", Required = false, HelpText = "Use supplied ldap user for SQL connection")]
+        [Option("sqluser", Required = false, HelpText = "Use supplied user for SQL connection")]
         public string sqlUser { get; set; }
         
-        [Option("sqlpassword", Required = false, HelpText = "Use supplied ldap user for SQL connection")]
+        [Option("sqlpassword", Required = false, HelpText = "Use supplied password for SQL connection")]
         public string sqlPassword { get; set; }
 
     }
