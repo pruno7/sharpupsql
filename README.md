@@ -21,7 +21,7 @@ Can also be used with Cobalt Strike's execute-assembly.
 
 --sqlinstance - Sql instance to connect to, format : IP,PORT
 
---checkrights - Check rights of the user after connecting to the instance
+--checkrights - Check rights of the user after connecting to the instance (for now will only check if you're sysadmin)
 
 --currentuser - Use current domain user for everything
 
