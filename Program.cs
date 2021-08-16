@@ -10,9 +10,8 @@ namespace SharpUpSQL
 {
     class Variables
     {
-        public static string sqlInstanceName;
-        public static string sqlInstancePort;
         public static SqlConnection cnn;
+        public static List<string> instances = new List<string>();
     }
     class Options
     {
@@ -45,6 +44,12 @@ namespace SharpUpSQL
         
         [Option("sqlpassword", Required = false, HelpText = "Use supplied password for SQL connection")]
         public string sqlPassword { get; set; }
+        
+        [Option("testconnect", Required = false, HelpText = "Test to connect every supplied or discovered instance using various chosen methods (bruteforce, supplied sql user/pass, supplied domain user/pass, current user")]
+        public bool testConnect { get; set; }
+
+        [Option("list", Required = false, HelpText = "print discovered spn list")]
+        public bool list { get; set; }
 
     }
     class Program
@@ -57,93 +62,123 @@ namespace SharpUpSQL
                 var parsedResult = Parser.Default.ParseArguments<Options>(args).WithParsed(parser => opts = parser);
                 if (args.Length == 0)
                 {
+                    Utils.print.red("[-] Use --help to show options");
                     Environment.Exit(1);
                 }
-                // discover SQL instances from SPN discovery
+                // SPN Discvory
                 if (opts.discoverspn)
                 {
-                    /// check if domain is provided
+                    Utils.print.blue("[*] Using SPN Discovery");
                     if (!string.IsNullOrEmpty(opts.domain))
-                    { 
-                        // use current user ? NEEDS TO BE RUN ON DOMAIN JOINED MACHINE (runas /ne needs to be tested)
+                    {
+                        Utils.print.blue("\t[*] The domain to use is : " + opts.domain);
                         if (opts.currentuser)
                         {
-                            Console.WriteLine("[*] Testing with current user");
-                            var sqlInstanceADInfos = SearchAD.searchSPNs(opts.domain, "", "");
-                            Variables.sqlInstanceName = sqlInstanceADInfos.Item1;
-                            Variables.sqlInstancePort = sqlInstanceADInfos.Item2;
-                            Variables.cnn = SQLConnect.sqlConnect(Variables.sqlInstanceName, Variables.sqlInstancePort, "", "");
+                            Variables.instances = SearchAD.searchSPNs(opts.domain, "", "");
                         }
-                        // Use supplied ldap user and password
                         else if (!string.IsNullOrEmpty(opts.LdapUserName))
                         {
-                            Console.WriteLine("[*] Testing with supplied LDAP user");
-                            var sqlInstanceADInfos = SearchAD.searchSPNs(opts.domain, opts.LdapUserName, opts.LdapPassword);
-                            Variables.sqlInstanceName = sqlInstanceADInfos.Item1;
-                            Variables.sqlInstancePort = sqlInstanceADInfos.Item2;
-                            Variables.cnn = SQLConnect.sqlConnect(Variables.sqlInstanceName, Variables.sqlInstancePort, opts.domain + "\\" + opts.LdapUserName, opts.LdapPassword);
+                            Variables.instances = SearchAD.searchSPNs(opts.domain, opts.LdapUserName, opts.LdapPassword);
                         }
                     }
                     else
                     {
-                        Console.WriteLine("[-] Provide the domain !");
-                        System.Environment.Exit(2);
+                        Utils.print.red("[-] Provide the domain !");
+                        Environment.Exit(2);
+                    }
+                    if (opts.list)
+                    {
+                        Utils.print.blue("\t[*] Discovered instances : ");
+                        foreach (string instance in Variables.instances)
+                        {
+                            Utils.print.white("\t\t" + instance);
+                        }
                     }
                 }
-                // supplied instance
-                else
+                // Test connect to SQL instance
+                if (opts.testConnect)
                 {
-                    if (!string.IsNullOrEmpty(opts.domain))
+                    // found sql instances via spn discovery
+                    if (opts.discoverspn)
                     {
-                        // use current user ? NEEDS TO BE RUN ON DOMAIN JOINED MACHINE (runas /ne needs to be tested)
+                        // test current user
                         if (opts.currentuser)
                         {
-                            Variables.sqlInstanceName = opts.sqlInstance.Split(',')[0];
-                            Console.WriteLine("[+] Formated name for SQL connection : " + Variables.sqlInstanceName);
-                            Variables.sqlInstancePort = opts.sqlInstance.Split(',')[1];
-                            Console.WriteLine("[+] Formated port for SQL connection : " + Variables.sqlInstancePort);
-                            Variables.cnn = SQLConnect.sqlConnect(Variables.sqlInstanceName, Variables.sqlInstancePort, "", "");
+                            foreach(string instance in Variables.instances)
+                            {
+                                Utils.print.blue("[*] Testing the following instance : " + instance);
+                                Variables.cnn = SQLConnect.sqlConnect(instance, "", "");
+                            }
                         }
-                        // Use supplied ldap user and password
+                        // test provided ldap user
+                        if (!string.IsNullOrEmpty(opts.LdapUserName))
+                        {
+                            // no check of domain because spn discovery handles that case
+                            foreach (string instance in Variables.instances)
+                            {
+                                Utils.print.blue("[*] Testing the following instance : " + instance);
+                                Variables.cnn = SQLConnect.sqlConnect(instance, opts.domain + "\\" + opts.LdapUserName, opts.LdapPassword);
+                            }
+                        }
+                        else if (!string.IsNullOrEmpty(opts.sqlUser))
+                        {
+                            foreach (string instance in Variables.instances)
+                            {
+                                Utils.print.blue("[*] Testing the following instance : " + instance);
+                                Variables.cnn = SQLConnect.sqlConnect(opts.sqlInstance, opts.sqlUser, opts.sqlPassword);
+                            }
+                        }
+                    }
+                    // provided sql instance
+                    else if (!string.IsNullOrEmpty(opts.sqlInstance))
+                    {
+                        // test current user against provided sql instance
+                        if (opts.currentuser)
+                        {
+                            Variables.cnn = SQLConnect.sqlConnect(opts.sqlInstance, "", "");
+                        }
+                        // test provided ldap user against provided sql instance
                         else if (!string.IsNullOrEmpty(opts.LdapUserName))
                         {
-                            Variables.sqlInstanceName = opts.sqlInstance.Split(',')[0];
-                            Console.WriteLine("[+] Formated name for SQL connection : " + Variables.sqlInstanceName);
-                            Variables.sqlInstancePort = opts.sqlInstance.Split(',')[1];
-                            Console.WriteLine("[+] Formated port for SQL connection : " + Variables.sqlInstancePort);
-                            Variables.cnn = SQLConnect.sqlConnect(Variables.sqlInstanceName, Variables.sqlInstancePort, opts.domain + "\\" + opts.LdapUserName, opts.LdapPassword);
+                            if (!string.IsNullOrEmpty(opts.domain))
+                            {
+                                Variables.cnn = SQLConnect.sqlConnect(opts.sqlInstance, opts.domain + "\\" + opts.LdapUserName, opts.LdapPassword);
+                            }
+                            else
+                            {
+                                Utils.print.red("[-] Provide the domain !");
+                                Environment.Exit(2);
+                            }
+                        }
+                        else if (!string.IsNullOrEmpty(opts.sqlUser))
+                        {
+                            Variables.cnn = SQLConnect.sqlConnect(opts.sqlInstance, opts.sqlUser, opts.sqlPassword);
+                        }
+                        else
+                        {
+                            Utils.print.red("[-] Provide some ways to connect, --help for options");
                         }
                     }
-                    else
-                    {
-                        Console.WriteLine("[-] Provide the domain !");
-                        System.Environment.Exit(2);
-                    }
-                    // use supplied credz for MSSQL
-                    if (!string.IsNullOrEmpty(opts.sqlUser))
-                    {
-                        Variables.sqlInstanceName = opts.sqlInstance.Split(',')[0];
-                        Console.WriteLine("[+] Formated name for SQL connection : " + Variables.sqlInstanceName);
-                        Variables.sqlInstancePort = opts.sqlInstance.Split(',')[1];
-                        Console.WriteLine("[+] Formated port for SQL connection : " + Variables.sqlInstancePort);
-                        Variables.cnn = SQLConnect.sqlConnect(Variables.sqlInstanceName, Variables.sqlInstancePort, opts.sqlUser, opts.sqlPassword);
-                    }
-                    else
-                    {
-                        Console.WriteLine("[-] Provide sqluser or use LDAP !");
-                        System.Environment.Exit(2);
-                    }
-
                 }
-                // Bruteforce with default users
+                
+                // use bruteforce module
                 if (opts.testBruteforce)
                 {
-                    Bruteforce.bruteforceSQL(Variables.sqlInstanceName, Variables.sqlInstancePort);
-                }
-                // check user rights on SQL instance
-                if (opts.checkRights)
-                {
-                    CheckRights.checkRights(Variables.cnn);
+                    // use found sql instances from spn discovery
+                    if (opts.discoverspn)
+                    {
+                        foreach (string instance in Variables.instances)
+                        {
+                            Utils.print.blue("[*] Testing the following instance : " + instance);
+                            Bruteforce.bruteforceSQL(instance);
+                        }
+                    }
+                    // use provided sql instance
+                    else if (!string.IsNullOrEmpty(opts.sqlInstance))
+                    {
+                        Utils.print.blue("[*] Testing the following instance : " + opts.sqlInstance);
+                        Bruteforce.bruteforceSQL(opts.sqlInstance);
+                    }
                 }
 
                 // TODO 

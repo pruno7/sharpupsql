@@ -9,17 +9,20 @@ namespace SharpUpSQL
 {
     class SearchAD
     {
-        public static (string, string) searchSPNs(string dc, string user, string password)
+        
+        public static List<string> searchSPNs(string dc, string user, string password)
         {
+            List<string> instances = new List<string>();
             DirectoryEntry Ldap;
-            Console.WriteLine("[*] Searching for SPNs");
+            Utils.print.blue("\t[*] Searching for SPNs");
             if (Program.opts.currentuser)
             {
-                Console.WriteLine("[*] Checking with current user");
+                Utils.print.blue("\t\t[*] Checking AD with current user");
                 Ldap = new DirectoryEntry("LDAP://" + dc);
             }
             else
             {
+                Utils.print.blue("\t\t[*] Checking AD with provided user : " + user);
                 Ldap = new DirectoryEntry("LDAP://" + dc, user, password);
             }
             DirectorySearcher searcher = new DirectorySearcher(Ldap);
@@ -28,15 +31,12 @@ namespace SharpUpSQL
             {
                 //Search for SQL Instances
                 string sqlInstance = Convert.ToString(result.Properties["servicePrincipalName"][0]);
-                Console.WriteLine("[*] Found SQL Instance : " + sqlInstance);
+                Utils.print.green("\t\t\t[*] Found SQL Instance : " + sqlInstance);
                 string sqlInstanceParsed = sqlInstance.Split('/')[1];
-                string sqlInstanceParsedName = sqlInstanceParsed.Split(':')[0];
-                Console.WriteLine("[*] Formated name for SQL connection : " + sqlInstanceParsedName);
-                string sqlInstanceParsedPort = sqlInstanceParsed.Split(':')[1];
-                Console.WriteLine("[*] Formated port for SQL connection : " + sqlInstanceParsedPort);
-                return (sqlInstanceParsedName, sqlInstanceParsedPort);
+                string recoveredSQLInstance = sqlInstanceParsed.Split(':')[0] + "," + sqlInstanceParsed.Split(':')[1];
+                instances.Add(recoveredSQLInstance);
             }
-            return ("Not found", "not found");
+            return instances;
         }
     }
 }

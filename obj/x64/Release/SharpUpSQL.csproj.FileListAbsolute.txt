@@ -1,0 +1,10 @@
+Z:\Tools\Pentest\Interne\SharpUpSQL\sharpupsql\bin\x64\Release\SharpUpSQL.exe.config
+Z:\Tools\Pentest\Interne\SharpUpSQL\sharpupsql\bin\x64\Release\SharpUpSQL.exe
+Z:\Tools\Pentest\Interne\SharpUpSQL\sharpupsql\bin\x64\Release\SharpUpSQL.pdb
+Z:\Tools\Pentest\Interne\SharpUpSQL\sharpupsql\bin\x64\Release\CommandLine.dll
+Z:\Tools\Pentest\Interne\SharpUpSQL\sharpupsql\bin\x64\Release\CommandLine.xml
+Z:\Tools\Pentest\Interne\SharpUpSQL\sharpupsql\obj\x64\Release\SharpUpSQL.csproj.CoreCompileInputs.cache
+Z:\Tools\Pentest\Interne\SharpUpSQL\sharpupsql\obj\x64\Release\SharpUpSQL.csproj.CopyComplete
+Z:\Tools\Pentest\Interne\SharpUpSQL\sharpupsql\obj\x64\Release\SharpUpSQL.exe
+Z:\Tools\Pentest\Interne\SharpUpSQL\sharpupsql\obj\x64\Release\SharpUpSQL.pdb
+Z:\Tools\Pentest\Interne\SharpUpSQL\SharpUpSQL\obj\x64\Release\SharpUpSQL.csproj.AssemblyReference.cache
