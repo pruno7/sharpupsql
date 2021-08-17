@@ -29,6 +29,10 @@ Can also be used with Cobalt Strike's execute-assembly. (not yet usable)
 
 --sqlpassword - Use supplied password for SQL connection
 
+--testconnect - Test to connect to the found/provided sql instance(s) using provided method (sqluser/ldapuser/currentuser)
+
+--list - Gives a list of all the SQL instances after SPN discovery
+
 --help - Do i really to explain this ?
 ```
 
