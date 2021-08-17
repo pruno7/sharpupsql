@@ -45,7 +45,7 @@ namespace SharpUpSQL
         [Option("sqlpassword", Required = false, HelpText = "Use supplied password for SQL connection")]
         public string sqlPassword { get; set; }
         
-        [Option("testconnect", Required = false, HelpText = "Test to connect every supplied or discovered instance using various chosen methods (bruteforce, supplied sql user/pass, supplied domain user/pass, current user")]
+        [Option("testconnect", Required = false, HelpText = "Test to connect every supplied or discovered instance using chosen method (supplied sql user/pass, supplied domain user/pass, current user")]
         public bool testConnect { get; set; }
 
         [Option("list", Required = false, HelpText = "print discovered spn list")]
